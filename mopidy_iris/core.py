@@ -13,7 +13,6 @@ import pickle
 from pkg_resources import parse_version
 from tornado.escape import json_encode
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
-from mopidy.models.serialize import ModelJSONEncoder
 
 from . import Extension
 from .system import IrisSystemThread
@@ -1165,14 +1164,11 @@ class IrisCore(pykka.ThreadingActor):
         meta = {}
 
         if track:
-            # Convert the Track to JSON, but to make it a response-ready JSON we need to load it.
-            # Required because ModelJSONEncoder produces single-quote JSON, and we need standard
-            # double-quoted json.
-            track = json.loads(json.dumps(track, cls=ModelJSONEncoder))
+            track = json.loads(json.dumps(track))
             images = self.core.library.get_images([track["uri"]]).get()
             if images:
                 meta["images"] = json.loads(
-                    json.dumps(images[track["uri"]], cls=ModelJSONEncoder)
+                    json.dumps(images[track["uri"]])
                 )
             meta["name"] = track["name"]
             meta["uri"] = track["uri"]
